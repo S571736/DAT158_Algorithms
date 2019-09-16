@@ -1,3 +1,5 @@
+import java.security.SecureRandom;
+
 public class LCS {
 
     public static String recusiveLCS(String X, String Y) {
@@ -35,6 +37,61 @@ public class LCS {
         return L[lengthX][lengthY];
     }
 
+    public static String generateString(int length) {
+        final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+        final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+        final String NUMBER = "0123456789";
+
+        final String DATA_FOR_RANDOM_STRING = CHAR_LOWER + CHAR_UPPER + NUMBER;
+        SecureRandom random = new SecureRandom();
+
+        if (length < 1) throw new IllegalArgumentException();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int rndCharAt = random.nextInt(DATA_FOR_RANDOM_STRING.length());
+            char rndChar = DATA_FOR_RANDOM_STRING.charAt(rndCharAt);
+            sb.append(rndChar);
+        }
+        return sb.toString();
+    }
+
+    public static void dynamicTimer(String X, String Y) {
+
+        long startTime = System.currentTimeMillis();
+        dynamicLCS(X, Y);
+        long tid = System.currentTimeMillis() - startTime;
+
+
+        System.out.println("Dynamisk tidsløsning: " + dynamicLCS(X, Y));
+        System.out.println("Dynamisk brukte: " + tid + "ms\n" +
+                "med stringene: " + X + " og " + Y + "\n");
+    }
+
+    public static void recursiveTimer(String X, String Y) {
+        long startTime = System.currentTimeMillis();
+        recusiveLCS(X, Y);
+        long tid = System.currentTimeMillis() - startTime;
+
+        String lengste = recusiveLCS(X, Y);
+        int lcs = lengste.length();
+        System.out.println("Rekursiv løsning: " + lcs);
+
+        System.out.println("Rekursiv brukte: " + tid + "ms\n" +
+                "med stringene: " + X + " og " + Y + "\n");
+    }
+
+    public static void timere(int length) {
+        String X = generateString(length);
+        String Y = generateString(length);
+
+        dynamicTimer(X, Y);
+        recursiveTimer(X, Y);
+
+        System.out.println("Stringene har lengde: " + length);
+
+    }
+
     public static void main(String[] args) {
         String stringX = "babbabab";
         String stringY = "bbabbaaab";
@@ -43,6 +100,8 @@ public class LCS {
         int lcs = lengste.length();
         System.out.println("Rekursiv løsning: " + lcs + "\n");
         System.out.println("Dynamisk løsning: " + dynamicLCS(stringX, stringY) + "\n");
+
+        timere(15);
 
     }
 
