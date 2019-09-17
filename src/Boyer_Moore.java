@@ -22,6 +22,7 @@ public class Boyer_Moore {
                 }
             } else {
                 indexString = indexString + substring.length() - Math.min(indexSubstring, 1 + string.lastIndexOf(string.charAt(indexString)));
+                //Her er det noe feil, FIX IT
                 indexSubstring = substring.length() - 1;
             }
         } while (indexString < string.length() - 1);
