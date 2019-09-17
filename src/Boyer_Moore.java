@@ -8,9 +8,11 @@ public class Boyer_Moore {
         String eksempel2 = "Hei, dette er ein test for om min Boyer Moore algoritme fungerer eller bare gir fullstendig fjasko";
         String pattern2 = "Moore";
 
-        int antall = Boyer_Moore(eksempel, pattern);
+        float l = eksempel.length();
 
-        System.out.println("antall sammenligninger per ord: " + (antall/eksempel.length()));
+        int antall = Boyer_Moore(eksempel, pattern);
+        float sammenligninger = antall/l;
+        System.out.println("antall sammenligninger per ord: " + (sammenligninger));
     }
 
     public static void badChar(String str, int size, int badchar[]) {
@@ -36,7 +38,7 @@ public class Boyer_Moore {
 
         while (s <= (n - m)) {
             int j = m - 1;
-            while (j >= 0 && string.charAt(j) == substring.charAt(s + j)) {
+            while (j >= 0 && substring.charAt(j) == string.charAt(s + j)) {
                 j--;
 
             }
@@ -45,7 +47,7 @@ public class Boyer_Moore {
 
                 s += (s + m < n) ? m - badchar[substring.charAt(s + m)] : 1;
             } else {
-                s += (1 > j - badchar[substring.charAt(s + m)]) ? 1 : j - badchar[substring.charAt(s + m)];
+                s += (1 > j - badchar[string.charAt(s + m)]) ? 1 : j - badchar[string.charAt(s + m)];
             }
         }
         return s;
