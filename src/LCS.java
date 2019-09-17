@@ -8,8 +8,10 @@ public class LCS {
 
         if (lengthX == 0 || lengthY == 0) {
             return "";
+
         } else if (X.charAt(lengthX - 1) == Y.charAt(lengthY - 1)) {
             return recusiveLCS(X.substring(0, lengthX - 1), Y.substring(0, lengthY - 1)) + X.charAt(lengthX - 1);
+
         } else {
             String x = recusiveLCS(X, Y.substring(0, lengthY - 1));
             String y = recusiveLCS(X.substring(0, lengthX - 1), Y);

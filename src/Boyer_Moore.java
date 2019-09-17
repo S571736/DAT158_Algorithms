@@ -1,43 +1,53 @@
 public class Boyer_Moore {
 
+    static int NO_OF_CHARS = 256;
+
     public static void main(String[] args) {
-        String eksempel = "Hei, dette er ein test for om min Boyer Moore algoritme fungerer eller bare gir fullstendig fjasko";
-        String pattern = "Moore";
+        String eksempel = "aaabaadaabaaa";
+        String pattern = "aabaaa";
+        String eksempel2 = "Hei, dette er ein test for om min Boyer Moore algoritme fungerer eller bare gir fullstendig fjasko";
+        String pattern2 = "Moore";
 
-        Boyer_Moore(eksempel, pattern);
+        int antall = Boyer_Moore(eksempel, pattern);
+
+        System.out.println("antall sammenligninger per ord: " + (antall/eksempel.length()));
     }
 
-    public static String Boyer_Moore(String string, String substring) {
-        int indexString = substring.length() - 1;
-        int indexSubstring = substring.length() - 1;
+    public static void badChar(String str, int size, int badchar[]) {
+        int i;
 
-        do {
-            System.out.println(string.charAt(indexString));
-            if (string.charAt(indexString) == substring.charAt(indexSubstring)) {
-                if (indexSubstring == 0) {
-                    return "There's a pattern ending in " + indexString;
-                } else {
-                    indexString--;
-                    indexSubstring--;
-                }
+        for (i = 0; i < NO_OF_CHARS; i++)
+            badchar[i] = -1;
+
+        for (i = 0; i < size; i++)
+            badchar[(int) str.charAt(i)] = i;
+
+    }
+
+    public static int Boyer_Moore(String string, String substring) {
+        int m = substring.length();
+        int n = string.length();
+
+        int badchar[] = new int[NO_OF_CHARS];
+
+        badChar(string, m, badchar);
+
+        int s = 0;
+
+        while (s <= (n - m)) {
+            int j = m - 1;
+            while (j >= 0 && string.charAt(j) == substring.charAt(s + j)) {
+                j--;
+
+            }
+            if (j < 0) {
+                System.out.println("Det er mønster i bytte nr: " + s);
+
+                s += (s + m < n) ? m - badchar[substring.charAt(s + m)] : 1;
             } else {
-                indexString = indexString + substring.length() - Math.min(indexSubstring, 1 + string.lastIndexOf(string.charAt(indexString)));
-                //Her er det noe feil, FIX IT
-                indexSubstring = substring.length() - 1;
+                s += (1 > j - badchar[substring.charAt(s + m)]) ? 1 : j - badchar[substring.charAt(s + m)];
             }
-        } while (indexString < string.length() - 1);
-
-        return "There is no substring of T matching P";
-    }
-
-    public static int last(char c, String substring) {
-        int i = substring.length();
-        while (i >= 0) {
-            if (c == substring.charAt(i)) {
-                return i;
-            }
-            i--;
         }
-        return -1;
+        return s;
     }
 }
