@@ -11,12 +11,68 @@
 
 ### b)
 
+* 1-2 = 4
+* 2-4 = 6
+* 4-5 = 3
+* 5-3 = 6
+* 3-6 = 2
+* Sum = 21
 
 ### c)
 
+**Tree 1**
+
+* finding minimal spanning tree
+
+![Tree1](Tree1.jpg)
+
+* Double the edges
+
+![Tree1D](Tree1D.jpg)
+
+* Eulerian tour
+
+1-2-1-3-6-5-4-5-6-3-1
+
+* Shortcut
+
+1-2-3-3-6-5-4-1
+
+**Tree 2**
+
+* finding minimal spanning tree
+
+![Tree2](Tree2.jpg)
+
+* Double the edges
+
+![Tree2D](Tree2D.jpg)
+
+* Eulerian tour
+
+1-2-1-3-6-3-5-4-5-3-1
+
+* Shortcut
+
+1-2-3-6-5-4-1
+
+**PS I see I have made a mistake here that follow through into task d, I have mixed node 1 and 2 in the drawing, but the text outside of the picture should be correct**
 
 ### d)
 
+* minimum matching perfect connectin 2 and 4
+
+![Tree1C](Tree1C.jpg)
+
+* Eulerian tour
+1-2-4-5-6-3-1
+
+* minimum matching perfect connecting 2 and 6
+
+![Tree2C](Tree2C.jpg)
+
+* Eulerian tour
+1-2-4-5-3-6-3-1
 
 ## Problem 2
 
@@ -65,15 +121,78 @@ Implement the randomized algorithm for MAX SAT where we set each X<sub>i</sub> t
 se java fil i src
 ### b)
 
-x<sub>1</sub>=False
+x<sub>1</sub> = False
 
-x<sub>2</sub>=True
+C<sub>1</sub> True = 3 * 3/4
+
+C<sub>1</sub> False = 3 * 1
+
+C<sub>2</sub> True = 2 * 1
+
+C<sub>2</sub> False = 2 * 1/2
+
+C<sub>3</sub> True = 1 * 1
+
+C<sub>3</sub> False = 1 * 3/4
+
+C<sub>4</sub> True = 3 * 1/2
+
+C<sub>4</sub> False = 3 * 1
+
+
+
+x<sub>2</sub> = True
+
+C<sub>5</sub> True = 4 * 1
+
+C<sub>5</sub> False = 4 * 1/2
+
+C<sub>6</sub> True = 2 * 1/2
+
+C<sub>6</sub> False = 2 * 1
+
 
 x<sub>3</sub>=False
 
+C<sub>2</sub> True = 2 * 1/2
+
+C<sub>2</sub> False = 2 * 1
+
+C<sub>7</sub> True = 2 * 1
+
+C<sub>7</sub> False = 2 * 1/2
+
+
 x<sub>4</sub>=False
 
+C<sub>3</sub> True = 1 * 1
+
+C<sub>3</sub> False = 1 * 1/2
+
+C<sub>7</sub> True = 0
+
+C<sub>7</sub> False = 2 * 1
+
+C<sub>8</sub> True = 3 * 3/4
+
+C<sub>8</sub> False = 3 * 1
+
+
+
 x<sub>5</sub>=True
+
+C<sub>3</sub> True = 1 * 0
+
+C<sub>3</sub> False = 1 * 1
+
+C<sub>6</sub> True = 2 * 1
+
+C<sub>6</sub> False = 2 * 0
+
+C<sub>9</sub> True = 5 * 1
+
+C<sub>9</sub> False = 5 * 1/2
+
 
 ## Problem 5
 
@@ -114,7 +233,4 @@ We have the following MAX SAT problem
 • 0 <= 𝑦<sub>𝑖</sub> <= 1 , 𝑖 = 1, 2, 3
 
 • 0 <= 𝑧<sub>𝑗</sub> <= 1 , 𝑗 = 1, … , 4
-
-
-to be finished: Exercise 1, 4-7
 
