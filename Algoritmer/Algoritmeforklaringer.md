@@ -99,21 +99,56 @@ Are false positives especially costly(like in spam detection)? Go for a threshol
 "If someone says "Let's reach 90% precision", you should ask, "at what recall?""
 
 ## Name some features. What are the classes? binary trees
+Features in binary trees are usually the difference "categories" one example is level of glucose, BMI and age. In the 
+example from last lecture some features are worst radius, worst concave points, texture error and smoothness error.  
 
-
+The class is somewhat of a result. There are classes in each node, but the class is first assigned in a leaf node. 
 ## Say you have an instance with "worst radius" 17, "texture error" 0.5 and "worst concavity" 0.2. What will be the predicted class? What probability will the model assign the instance
+False, False, False. This means the predicted class is cancer, but the gini of the class is just 0.48 which is very high.
 
+The probability for not cancer is 2/5 and cancer is 3/5 
 
 ## What is a random forest?
+The negative side about binary trees is that it heavily overfits, if not regularly. They are also extremely sensitive 
+to small variations in the data. This is where random trees comes in. We ensemble multiple trees into one model, where 
+one of these is called random forests. Random forest also performs much better. Random forest is related to the concept
+of wisdom of the crowd where a crowd of non-expert that combine their predictions outperform individual experts. 
 
+So to summarize, an ensamble of binary threes which outperforms, is less sensitive and generalizes more than binary 
+threes. 
 
 ## How are predictions from a random forest produced?
+This depends on whether it's regression or classification,
 
+* **Regression**: Let each tree make a predicition and then average them.
 
-## What is the behind gradient descent
+* **Classification**: Let each tree make a prediction, and use a soft voting strategy to combine them. As we saw in the 
+decision trees notebook, each tree provides a probability for its prediction. Average these probabilities and predict 
+the class that has the highest average probability
 
+## What is the idea behind gradient descent
+First off gradient descent is a very generic optimization algorithm capable of finding optimal solutions to a wide range
+of problems. The general idea of Gradient Descent is to tweak parameters iteratively in order to minimize a cost 
+function.
 
 ## Can you name some variants of gradient descent? What are their respective strengths and weaknesses?
+* **Batch Gradient Descent**:
+The parameters are update once after all the training examples have been passed through the network. example: 100 Training 
+examples then the parameters of the neural network are updated once after all examples are determined. **Pros**: Batch 
+is good at producing a more stable gradient descent convergence and stable error gradient than stochastic gradient 
+descent. **Cons**: Sometimes a stable error gradient can lead to a local minima. The entire training set can be too 
+large to process in the memory. It takes too long for processing all the training samples as a batch.
+ 
+* **Stochastic Gradient Descent**: One training sample is passed through te neural network at a time. parameters(weights)
+of each layer are updated with the computed gradient. **Pros**: It is easier to fit into memory due to a single training sample
+being processed by the network. It can converge faster because it updates to the parameters more frequently. Help 
+getting out of local minimums of the loss function. **Cons**: Due to frequent updates the steps taken towards the minima 
+are very noisy. This can lead the gradient descent into other directions. Longer achievement.
+
+
+* **Mini-Batch Gradient Descent**: This is a mixture of both stochastic and batch GD. 100 samples, examines 10, 20, 30,...
+at a time. Find the balance between BDG and SDG. A batch of samples are updated each iteration. **Pros**: Easily fits in 
+the memory. It is computationally efficient. If stuck in local minimums, some noisy steps can lead the way out of them.
 
 
 ## What are neural networks? Name some ingredients
