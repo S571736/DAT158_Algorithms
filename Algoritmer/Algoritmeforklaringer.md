@@ -132,6 +132,24 @@ What is the best interpolating function
 ### Classification vs Regression
 Is there continuity on the possible predictions? Predicting a price of 1 500 000 vs 1 500 001 makes a very small difference  
 
+### Confusion matrix
+Confusion matrix is a table that summarizes the results from a classification model's predictions. The idea is to count
+the number of times instances of a certain class is classified as the various classes in your problem. So in MNIST case:
+how often the 4s and non-5s are correctly classified, how often a 5 is misclassified as a non-5 and how often a non-5 as
+a 5. We need to produce some predictions, this can be done with ``cross_val_predict`` which returns predictions based on
+all the K folds.
+
+![Confusion matrix](https://www.researchgate.net/profile/Alejandro_Baldominos/publication/328816477/figure/fig3/AS:703352962809858@1544703822325/Confusion-matrix-for-the-MNIST-dataset-with-the-best-ensemble.png)
+
+### ROC curves
+
+ROC curve(receiver operating characteristic curve) is a graph that's often used to evaluate binary classifiers. It's a 
+plot of the true positive rate vs the false positive rate. TPR = TP/(TP+FN), FNR = FP/(FP+TN). Sklearn has a function
+for this calles ```roc_curve```. A really good classifier will have a ROC curve that's very close to the top left corner.
+This means it has high TPR and low FPR for any thresholds. We can use ROC curves to compute how good a classifier is.
+If it's good there's a high area under the curve. If it's bad the area will be close to 0.5. This is called ROCAUC, ROC
+area under the curve.
+
 ## What can go wrong if you tune hyperparameters based on test-set performance
 The test set is usually a small set and this would cause a lack in generalization. The model would then probably miss a 
 lot on new data.
@@ -148,7 +166,7 @@ K-1 and part of the evaluation set once. An important advantage of this approach
 separate sets) is that it doesn't waste as much training data. Unless you have plenty of data, cross validation is the 
 preferred method for estimating model performance.
 
-Cross validatoin also provides a more thorough test than splitting the data into a training set and a test set. The 
+Cross validation also provides a more thorough test than splitting the data into a training set and a test set. The 
 ```train_test_split``` procedure sets aside a fixed random subset of the data as a test set. If we're unlucky, all the 
 difficult examples end up in the training set, while the test set contains only easy ones.
 
@@ -157,17 +175,47 @@ leave-one-out. Each fold is then a single sample.
 
 The result of this K-fold cross validation procedure is an array of K evaluation scores.    
 
+## Validation set and model selection
+It's very important to not base decisions on the parameters in model selection based of test set performance. That is 
+because the model will be biased based on the test set. So to get get an unbiased estimate we split the training set into
+two sets, a data set used for training and another set for evualuating performance while trying out various possible 
+models and settings, called a validation set. 
+
 ## Explain concept of "underfitting", "Overfitting" and "generalization" in machine learning
 underfitting is when the model is not trained enough and will not hit accurately enough because of purely missing or 
 over generalizing. Overfitting is when the model is trained to much on the selected model and will therefor hit the 
-dataset it's trained on more or less perfectly but will miss on new data. 
+dataset it's trained on more or less perfectly but will miss on new data. Generalization is mostly what we're after.
+Generalization in machine learning is essentially how well the model responds to new data coming in. We want a model that
+generalizes enough to hit new data and not so much that it completely misses.
 
 ## What is precision? What is recall?
-The recall of a binary classifier is the proportion of actual positives that were correctly identified. In other words, 
-recall = true positive/all actual positives = TP/P = TP/(TP+FN)
+The **recall** of a binary classifier is the proportion of actual positives that were correctly identified. In other words, 
+recall = true positive/all actual positives = TP/P = TP/(TP+FN).
 
-The precision of a binary classifier is the proportion of te positive predictions that were actually correct. In other 
-words, precision = true positives/positive prediction = TP/(TP+FP)
+The **precision** of a binary classifier is the proportion of the positive predictions that were actually correct. In 
+other words, precision = true positives/positive prediction = TP/(TP+FP). Sometimes called true positive rate
+
+### More precision and recall
+
+**Specificity** of a binary classifier is the proportion of actual negatives that were correctly identified. Sometimes 
+called true negative rate
+
+
+### Binary classifier
+A binary classifier is essentially a system that distinguish one thing from another. Like is this number a five or not a
+five. 
+
+### Accuracy and different sorts of errors
+If we classify something as belonging to the positive class we can either be correct(**true positive**) or incorrect
+(**False positive**). If we classify something to be negative we can either be correct (**True negative**) or incorrect 
+(**False negative**). What errors we care the most about depends on the task: if we're for example diagnosing a treatable
+condition in patients we should do everything we can to reduce the rate of false negatives. While perhaps still keeping 
+an eye on the false positive rate because a positive diagnosis could lead to invasive and extensive further testing of 
+the patients.
+
+In spam filtering we care most about not marking important emails as spam, i.e. we want a low false positive rate(non-spam
+marked as spam) even if it means a higher false negative rate(some spam emails ending up in our inbox).
+
 
 ## What is the so-called precision-recall tradeoff?
 It's typically impossible to achieve both high precision and high recall simultaneously. They are typically competing, 
@@ -177,6 +225,370 @@ Are false negatives very bad(like in medical diagnosis)? select a low threshold 
 Are false positives especially costly(like in spam detection)? Go for a threshold that gives you high precision and OK recall. 
 
 "If someone says "Let's reach 90% precision", you should ask, "at what recall?""
+
+## Training models
+### Linear regression
+In regression we seek to identify a continuous variable y associated with a given input vector x.
+
+In dumb dumb: We try to find the best straight line through that goes through the points.
+
+y = b + w * x
+
+* y is the dependent variable
+* x is the independent variable
+* b and w are the constant variables
+    * b is called intercept
+    * w is called coefficient or slope
+    
+![Linear regression](https://media.geeksforgeeks.org/wp-content/uploads/linear_regression_result-1.png).
+
+**Application of linear regression**
+
+* Stock market forecast
+    * f(past price, size of market, ...etc)= Dow Jones stocks for tomorrow(increase or decrease)
+* Self-driving cars
+    * f(sensors) = angle of the steering wheel
+* Recommendation
+    * f(user A, product B) = probability of user A buying product B
+
+Loss-function is sum of square error. We do this to minmize the error to best fit the data points.
+    * How differences between the predicted value and the actual value.
+    * Example: quadratic loss function, absolute loss function, logarithmic loss function, ...etc
+    
+**Mean square error**(MSE): ``from sklearn.metrics import mean_squared_error``
+
+**Least square method**(LSM): ```from sklearn.linear_model import LinearRegression```
+ 
+**Root mean square error**(RMSE): ``import math``
+
+**Mean absolute error**(MAE): ``from sklearn.metrics import mean_absolute_error``
+
+**R-squared**: ``from sklearn.metrics import r2_score``
+
+If we see that the points make a slope or the form of the points is bending a lot we can use polynomial regression.
+
+There's also something called multiple linear regression for when we are comparing more than two variables.
+
+
+### Gradient descent
+* An iterative way to find the minimum of the function
+* Optimization of function (hyperparameters)
+* Optimized the parameters using the gradient descent in the deep learning neural networks
+    * Minimum of the function
+* Two steps
+    * Compute the slope that is the derivative of the cost function at the current point
+    * Move in the direction of the slope increase(or decrease) from the current point by the computed amount.
+   
+Gradient descent considers a loss function.
+* We start by picking an initial random point.
+* Compute the differential(slope) of the point to the loss function. 
+    * If the answer is negative we increase the point
+    * If the answer is positive we decrease the point
+* We have to consider the learning weight.
+    * A too large and constant learning rate will overshoot
+    * A small and constant learning rate will take it's goddamn time to reach the minima.
+    * A gradient learning rate will hopefully take big steps in the start to get as close as possible and make smaller 
+    steps to get as close as possible to the minima without overshooting or undershooting
+    
+![Visualization of local/global minima](https://www.i2tutorials.com/wp-content/uploads/2019/09/Neural-network-32-i2tutorials.png)
+
+There can be both local and global minimas.
+
+We terminate the gradient descent either by:
+1. Convergence
+2. Number of iterations.
+
+
+**Batch gradient descent**:
+* The parameters are updated once after all the training examples have been passed through the network.
+    * 100 training examples then the parameters of the neural network are updated once after all examples are determined.
+* **Good at**:
+    * It produces a more stable gradient descent convergence and stable error gradient than stochastic gradient descent.
+* **Not good at**:
+    * Somethimes a stable error gradient can lead to a local minima
+    * The entire training set can be too large to process in the memory
+    * It takes too long for processing all the training samples as a batch
+    
+**Stochastic gradient descent**:
+* One training sample (example) is passed through the neural network at a time
+* Parameters (weights) of each layer are updated with the computed gradient
+
+* We change one-by-one each time
+
+sklearn has an built in function for this: ``from sklearn import linear_model``
+
+``clf = linear_model.SGDRegressor(max_iter==10000, eta0=0.0001)``
+
+* **Good at**:
+    * It is easier to fit into memory due to a single training sample being processed by the network
+        * One sample is processed at each time
+    * It can converge faster
+        * Updates to the parameters more frequently
+    * Help getting out of local minimums of the loss function
+* **No good at**:
+    * Due to frequent updates the steps taken towards the minima are very noisy
+        * This can often lead the gradient descent into other directions
+        * Longer achievement
+
+**Mini-batch gradient descent**: 
+* This is a mixture of both stochastic and batch gradient descent
+    * 100 samples, examines 10, 20, 30..., etc., at each time
+* Find the balance between BGD and SGD
+
+A bunch of samples are updated at each iteration
+
+* **Good at**:
+    * Easily fits in the memory
+    * It is computationally efficient
+    * If stuck in local minimums, some noisy steps can lead the way out of them.
+
+#### Setting learning rate
+Learning rate is very important and it is hard to set a good rate. An adaptive rate is good for this. At the beginning,
+learning rate should be set as a larger rate since we would like to achieve the optimized solution ASAP. After several
+iterations, we are approaching to the destination, the learning rate should be reduced. Different parameters should have 
+different learning rates.
+
+**Adagrad** is an adaptive gradient algorithm. Consider to assign the learning rate to each parameter, individually. 
+Learning rate is decreased as the time goes by. As the increase of the steps, we hope learning rate can be converged
+
+Tensorflow is an library full of optimization methods.
+
+Feature scaling is also a thing. Seems to scale down.
+
+#### Evolution computation computation
+* Holland's original GA is now known as the simple genetic algorithm(SGA).
+    * Natural inspiration
+    * Stochastic search
+* Genetic algorithm is used to find the optimized solutions
+* Three operations in  GA
+    * Mutation
+    * Crossover
+    * Selection
+
+Crossover(same feature with both is the same) rate is much higher than mutation rate(something random)
+
+* Selection
+    * Select the best and suitable mate for yourself
+        * Fitness function
+        * is different in varied domains and applications
+* Crossover
+    * Marriage for next generation
+    * Inherit partial features from parent
+        * 30% from dad, 70% from mom
+* Mutation
+    * Get better solution
+        * Become stronger to adapt to the environment
+
+
+### Learning curve
+**So far:**
+
+* Training a model based on the training data
+    * Get the parameters
+        * LSM
+        * Gradient descent
+        * ...
+    * What is the main purpose
+        * Knowing the predicted results of the testing data to evaluate whether this model is good
+
+We need to know the error of the new testing data and find the best function from the function set.
+
+
+#### Bias and variance
+
+* **Bias**
+    * High bias
+        * Pay very little attention to the training data and oversimplifies the model
+        * It always leads to high error on training and test set
+* **Variance**
+    * High variance
+        * Pay a lot of attention to the training data and does not generalize on the data which it hasn't seen before
+        * Model performs very well on training data but has high error rates on test data
+
+If the model is simple the variance is low, if the model is complex the variance is high. If the model is simple, the 
+result has less influence by the sample data.
+
+* Large bias, underfitting
+    * The designed model cannot even fit a training data
+* Large variance, overfitting
+    * You fit the training data, but has the large error on the testing data
+
+* If the model is underfitting, the model is too simple, the bias is high
+    * Re-design the model
+        * Add more features into input
+            * Weight, height so on
+        * A more complex model
+            * x squared, x cubed etc.
+* If the model is overfitting, the model is already complicated, high variance
+    * Add more training data
+        * It cannot always be done
+    * or regularization
+
+#### Model selection
+There's a trade-off between bias and variance. Select a model to minimize the error in the testing data. How do we select
+a good model?
+
+Cross validation by splitting into training, validation and testing by using sklearns ``train_test_split``. This way we 
+get 60% training, 20% validation and 20% testing.
+
+can also use sklearn ``cross_val_score``.
+
+#### Learning curve
+* Learning curves are deemed effective tools for new monitoring the performance of workers exposed to a new task
+* Train learning curve
+    * Learning curve calculated from the training dataset that gives an idea of how well the model is learned.
+* Validation Learning curve
+    * Learning curve calculated from a validation dataset that gives an idea of how well the model is generalized.
+    
+#### Problems in machine learning 
+* Optimization
+    * Find the best function to obtain the optimized parameters for the training data.
+    * The predicted model cannot be used for all cases
+    * Overfitting problem
+* Generalization
+    * Find the best function to fit all the testing data
+    * The parameters cannot be optimized
+    * Underfitting problem
+* Solution
+    1. Start training
+    2. High training error?
+        * Yes, underfitting high bias
+        1. Training longer
+        2. Training under more complex model
+        3. Obtain more features
+        4. decrease regularization
+        5. New model
+    * High validation error?
+        * Yes, overfitting high variance
+        1. Obtain more data
+        2. Decrease number of features
+        3. Increase regularization
+        4. New model
+    * End 
+
+    
+### Regularization
+* Instead of re-design the model 
+    * we can do regularization. 
+* Keep the current features, but reduce the influence of the un-important features
+    * Generalization for the coming new data
+        * Shrink the importantness of coefficients
+    * Good for a model with many features
+
+#### Ridge regression
+* Advantage
+    * To solve the problem of overfitting
+    * What is overfitting problem?
+        * Fit the training data really well but worse in testing
+    * Purpose
+        * Generalize the model to have better performance on both training and testing
+        * Add the penalized term to overcome the overfitting
+        * Make the model more generalized, flat, and horizontal
+* Loss function
+    * LSM (Sum of squared residuals)
+
+Ridge regression line has less slope than the least square line, Less sensitive on X
+
+* Shrinking the coefficients leads to a lower variance and in turn a lower error value
+* Decrease the complexity of a model but does not reduce the number of variables, it rather just shrinks their effect
+    * It is hard to be 0 for the coefficients, but tends to be a very small number
+    
+get a good lambda with trial and error. Try several values for it, use 5-fold or 10-fold cross validation to see which
+value can make a good results in lower variances
+
+The best situation to use the ridge regression is when the sample data is small, it can make a better prediction to 
+generalize the model for the testing data or prediction is less sensitive to the training data. Ridge regression starts 
+from a small and worse fit to the training data, but has better predictions for the long term
+
+#### Lasso regression
+Absolute values of the slope. less variance than the least square line. less sensitive of X to Y for a small training 
+data. High lambda makes a lower slope.
+
+* **Ridge regression**
+    * Shrink the slopes (w_3 and w_4) close to 0
+    * Shrink a lot but it is hard to be 0
+* **Lasso regression**
+    * Shrink the slopes (w_3 and w_4) all the way to 0 if it is not relevant to final results.
+    * High possibility shrink to 0
+
+Lasso regression is similar to ridge regression, however given a suitable lambda value lasso regression can drive some
+coefficients to zero
+
+* Eliminate some features entirely
+    * Feature selection
+
+#### Elastic regression
+**Lasso** can exclude the useless variables, thus reducing the variance in the models if it contains many useless 
+variables.
+
+**Ridge** is doing better when most variables are useful.
+
+Elastic net is kind of a mix between Lasso and Ridge
+
+
+#### Logistical regression
+* Linear regression
+    * Predict a numerical value for the coming event
+        * Stock price will be increased/decreased in the coming two weeks
+* Logistic regression
+    * Predict the class for the coming event with the probability
+        * SPAM email or not
+    * It is not relevant to regression model but more like classification
+        * Binary results, 0/1 (False/True)
+    * Supervised learning
+    * Trying to find the S shape
+        * The curve goes to 0 to 1
+    * If the weight of a person is very high
+        * He/She has a high probability to get diabetes
+    * If the weight is medium
+        * 50% chance to get the diabetes
+    * If the weight is low
+        * Lower change to get the diabetes
+    * This is a classification problem, thus
+        * If a change is larger than 50%, we will say he/she has the diabetes
+        * Otherwise, no
+    * Same as the regression model, the diabetes can be predicted by the weight
+    * Different to the linear regression
+        * How does line fit to the data
+    * Linear regression
+        * Find the minimum the sum of the squares of the residual errors
+            * MSE, RMSE, R-squared
+    * There is no residual for the logistic regression
+        * Cannot calculate MSE, RMSE, R-squared
+    * Use maximum likelihood
+        * Calculate the likelihood of each point
+        * Multiple all the likelihood together
+            * The likelihood of the data given to this line
+            
+The curve with the maximum likelihood is selected
+
+Built in functions
+* ``from sklearn import linear_model``
+* ``linear_model.LogisticRegression()``
+
+**Decision boundary**
+
+Decision boundary helps to differentiate probabilities into positive class and negative class
+
+##### Linear regression problem
+* Linear regression can be used for the prediction
+    * y = b + wx
+        * Given a weight, predict the diabetes
+
+#### Softmax regression
+* Softmax regression allows for the classification of an input into discrete classes
+    * Logistic regression provides only binary classification
+    * Multiple classification
+* Softmax allows for classification into any number of possible classes
+    * Probability
+        * Must equal to 1
+* Two steps:
+    * Sum up all the possible features of each class
+    * For all class, find the normalized probability of each class
+* Built-in function
+    * ``from mlxtend.classifier import SoftmaxRegression``
+    
+## Decision trees, random forests and gradient boosted trees
 
 ## Name some features. What are the classes? binary trees
 Features in binary trees are usually the difference "categories" one example is level of glucose, BMI and age. In the 
