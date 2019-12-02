@@ -475,6 +475,22 @@ can also use sklearn ``cross_val_score``.
         * Shrink the importantness of coefficients
     * Good for a model with many features
 
+As you know, restricting models can be used to reduce their variance and therefore their tendency to overfit.
+
+Following parameters are used for regularization
+* ``Max_depth``: As we saw above, reducing the maximum depth a decision tree is allowed to have, one can simplify the 
+decision boundary and therefore prevent overfitting. Decrease to regularize.
+* ``min_samples_split``: This parameter controls the minimum number of samples a node can have to be allowed to split.
+Increase to regularize. 
+* ``min_samples_leaf``: The minimum number of samples a leaf must contain. Increase to regularize.
+* ``max_features``: The maximum number of features that are evaluated when deciding whether to split each node. Decrease
+to regularize.
+* ``max_leaf_nodes``: The maximum number of leaf nodes. Decrease to regularize.
+* ``min_impurity_deacrease``: Split nodes if the split results in a decrease of the impurity greater than or equal to 
+this value. Increase to regularize.
+* ``min_impurity_split``: Split a node if its impurity is above this threshold. Otherwise it's a leaf. Decrease to 
+regularize.
+
 #### Ridge regression
 * Advantage
     * To solve the problem of overfitting
@@ -589,6 +605,245 @@ Decision boundary helps to differentiate probabilities into positive class and n
     * ``from mlxtend.classifier import SoftmaxRegression``
     
 ## Decision trees, random forests and gradient boosted trees
+What are the best machine learning models in existence?
+
+* Gradient boosted trees (XGBoost)
+* Deep neural networks (Deep learning)
+    * Recommendation systems
+    * OpenAI
+    * Picture recognition
+    * Speech recognition
+
+### Decision trees
+Decision trees are full of nodes asking simple questions like is x > 5 and so on. In a plotted system each node splits 
+graph. In otherwords decision trees are a hierarchy of if/else questions. 
+
+* How to grow a tree
+    * Search over all possible if/else tests for all possible features and split using what's most informative
+    * Continue recursively
+    * Until each leaf of the tree contains only one class (or until a stopping criterion is met)
+* How to make predictions
+    * Let the new data point traverse through all the questions until it ends in a leaf
+    * Predict that it belongs to the majority class in the leaf
+    * For regression: predict the mean value of the training points in that leaf
+
+We can let the models vote on a prediction
+    * Logistic regression
+    * SVM Classifier
+    * Random Forest Classifier
+    * Others...
+
+Split training set into different smaller sets and train on those. Out of this you get predictors (e.g classifiers).
+
+* Random sampling with replacement = bagging
+* Random sampling without replacement = pasting
+
+Decision trees with bagging makes more sense and generalizes a bit more.
+
+Boosting note: Boosting increases the weight of some points in the graph.
+
+We can also use different predictions and blend them to one.
+
+* **Root node**: The top node. No parent node. Where you start. Poses the first if-else question.
+* **Internal node**: Has one parent node and two children. These nodes pose if-else questions.
+* **Leaf node**: A node without children. Not possible to go any further. A bottom node. These nodes provide predictions.
+* ``samples``: The number of training samples that the node applies to. The number of training instances that end up 
+passing through the node. for example, there are 179 samples for which the glucose is less than 154.5
+* ``value``: A list of the number of samples of each class that the node applies to.
+* ``gini``: A measure of "impurity". The gini is 0 if all the training samples in that node belongs to a single class. 
+It grows towards 1 as the class diversity at the node increases
+
+We'll have more to say about the Gini impurity shortly, as it's what's used to make decision trees.
+
+But first, it's instructive to visualize the decision boundary produced by our decision tree, as we did back in Part 3.
+
+Decision boundaries can be shown in a graph as a line that splits the graph. The boundary is not necessarily linear and 
+not smooth as for polynomial regression.
+
+NOTE: The decision boundaries of decision trees are always parallell to an axis. Why is that? It's because each node in 
+a decision tree consists of a test using only one feature at a time.
+
+#### Gini and information gain
+
+Decision trees learn the relationship between the training data and the corresponding labels by organizing the training 
+data in a binary tree. Each leaf in the tree makes a specific prediction. Each internal node compares a single feature 
+value against a single threshold, and places instances in their corresponding child nodes.
+
+Training a decision tree is done recursively, roughly as follows (we'll study training more carefully below):
+* The goal is to obtain leaves that are as pure as possible, with the maximum amount of samples in the leaves belonging 
+to the same class.
+* Starting at the root node, the data is split into two parts based on the feature that has the larges information gain.
+* This is repeated for each child of the node, and so on in an iterative way.
+
+To achieve this we need a measure of information gain, and we also need it to tell us hen a node is pure.
+
+**Gini impurity** is one such measure. Gi = 1 - sum of Pik squared.
+
+P is the proportion of the samples that belongs to class K for the node i
+
+We note that:
+    * If the node is pure, that is all the samples belong to a single, class then Gi = 0
+    * If a node has many samples belonging to each of many classes, then Gi gets closer to 1. Very impure.
+    * The information gain of a node can be computed as the Gini impurity at the node minus the sum of the Gini impurity
+     of its children weighted by their sizes. 
+
+Decision trees have the ability to output predictions and estimated probabilities. So decision trees can say "The model
+predicts that you have diabetes with 74% probability"
+
+**Cart algorithm** searches greedily for a feature and a threshold that gives the highest information gain when used to 
+split the data. For example, glucose and glucose less than 132.5.
+
+Once it has split the training data in two at the root, it continues in the same way on each of the two subsets.
+
+**Cost function** that CART tries to minimize is the node impurity. Calculated by number of samples in the left samples 
+divided by total number of samples in the node + the same for the right node. The algorithm stops once it reaches the 
+``max_dept``, or if it's not possible to find more splits that reduce the impurity. Or when another stopping criteriu, 
+for minimum number of samples in a node, is reached. 
+
+#### **Instability**
+
+As you've realized, decision trees are great machine learning models in many ways. They are
+
+* easy to user (work for any combination of categorical and continuous features, without need for scaling or other 
+pre-processing).
+* easily interpretable (explaining why a decision tree made a decision is simply a matter of retracing the steps taken 
+by the data through the tree, The possibility of computing feature importances is also super handy for interpretability)
+* can easily fit the training data.
+
+There are some important downsides. We've seen them tend to overfit regularly if not regularized. They are also extremely
+sensetive to small variations in the training datat
+
+To combat these limitations while retaining as many of the nice aspects of decision trees as possible, one usually 
+ensembles multiple trees into a single model called random forests. 
+
+### Random Sampling
+
+### Random forests
+
+The negative side about binary trees is that it heavily overfits, if not regularly. They are also extremely sensitive 
+to small variations in the data. This is where random trees comes in. We ensemble multiple trees into one model, where 
+one of these is called random forests. Random forest also performs much better. Random forest is related to the concept
+of "wisdom of the crowd" where a crowd of non-expert that combine their predictions outperform individual experts. 
+
+So to summarize, an ensemble of binary threes which outperforms, is less sensitive and generalizes more than binary 
+threes. 
+
+Let's say we want to make 500 trees based on a training set containing ``n_samples`` point. Each tree is built in the
+following way:
+
+1. Each tree trained on different data sets: Choose one data point at random for the training data, with replacement. Do
+this ``n_samples`` times, that is until you have ``n_samples`` points. This is called bootstrap sampling.
+2. Each tree trained on different features: Train a decision tree on this data set, but at each node of the tree select
+a random set of features to consider when splitting, up to ``max_features`` of them.
+
+this is a random forest 
+
+Predictions are done differently for regression and classification
+
+* **Regression**: Let each tree make a prediction, then average them.
+* **Classification**: Let each tree make a prediction, and use a soft voting strategy to combine them. As we saw in the 
+decision trees notebook, each tree provides a probability for its prediction. Average these probabilities and predict 
+the class that has the highest average probability
+
+![Random forest classification](http://res.cloudinary.com/dyd911kmh/image/upload/f_auto,q_auto:best/v1526467744/voting_dnjweq.jpg)
+
+**How to improve models?**
+
+1. Collect better data. Perhaps the problem was framed wrong during data collection? is the data collected in a prudent 
+way?
+2. Get more data. Real data, synthesized data, or similar data.
+3. Create new, better features. Also consider removing uninformative features(these can reduce performance by increasing
+ data size requirements)
+4. Preprocess the data better. Scaling, transformations, etc
+5. Use a better adapted model. Most ML models can be tuned by selecting better hyperparameters. They can be made more or
+less complex, which is useful when trying to approximate the true function of a given complexity. "Everything should be 
+made as simple as possible, but not simpler"
+6. Use a different class of model. Perhaps you've used a model that cannot become sufficiently complex (e.g. logistical 
+regression on a complicated data set)? Or perhaps your model is too complex?
+7. Use multiple models together in an ensemble. For example using hard or soft voting. Or let each model be based on 
+slightly different features than the others, making the models more independent of each other. You can also use a model 
+to learn how the ensemble should best be combined, or sequentially train models trying to predict the errors of the 
+previous models and then combine them to produce predictions.
+
+
+
+**Note: read about the example for random forest for regression and classification**
+#### Feature engineering
+Some features are more important than others. Some describe the patients from an example more expedient way than others.
+That is, they are of greater value for our predictive model.
+
+One of the most important parts of ML is feature engineering
+
+Machine learning is, basically, about function approximation. You want to find a function that is as close as possible 
+to the true function mapping from the set of features to correct label or value.
+
+By describing the raw data with new, more suitable features it is possible to reduce the complexity of the true function.
+
+The best way to do feature engineering is to influence how the data is collected. Then it's possible to add new features
+that one believes could be useful for modelling. 
+
+#### Ensembling
+Ensembling is a general technique for combining machine learning models to make even more powerful models.
+
+There are several variants of this. **Voting, Bagging, boosting, stacking** are some.
+
+Some of the widely used models made using ensembling are random forests, based on bagging, and gradient boosted decision
+trees, based on boosting.
+
+## Boosting
+
+boosted trees is one of the most powerful classes of machine learning. Boosting takes another approach to ensembling.
+New members are added to the ensemble sequentially_, each new model is trained on the _erros of the ensemble constructed
+so far, iteratively learning from its mistakes. We'll focus on boosting based on decision trees, as these are the most 
+common base-models
+
+One of the main boosting techniques is **AdaBoost**. In AdaBoost each additional tree focuses on the examples(i.e. 
+_instances_) that were misclassified by the previous trees.
+
+In gradient boosting, each tree added to the ensemble tries to predict residual error from the previously added tree. 
+So it's trained to predict the difference between the correct value and the value predicted from the ensemble so far.
+
+Each tree is a weak learner, not able to fit data very well. By combing them by having each tree try to predict the 
+residual of the previous trees predictions, the result is a very strong learner. Some of the strongest learners we know
+are made this way.
+
+#### AdaBoost: adaptive boosting
+
+Introduced in 1995 and the first boosting algorithm with practical use cases. Authors won a prize for the algorithms 
+"_elegance, simplicity of implementation, its wide applicability, and its striking success in reducing errors in 
+benchmark applications even while in theoretical assumptions are not known to hold_". 
+
+**Basic idea:**
+* Give each instance in the training data an _instance weight_, initially set to 1/m where m is number of instances
+* Extract a sample of the training data and train a _weak learner_ on it. The weak learners in AdaBoost are typically
+decision trees of depth 1(decision stumps), but other models can be used.
+* Calculate weight for the learner, based on its error rate. Higher accuracy means higher weight.
+* Then increase the weight of the misclassified instances according to the learners weight. An instance misclassified 
+by a high-weight learner gets higher weight than one misclassified by a low weight learner.
+Extract another sample from the training data, sampled according to the instance weights.
+* Train the next weak learner on the sampled data, compute the weight and update the weights of the training instances
+accordingly.
+* Continue until perfect fit or ``n_estimators`` have been trained.
+
+Each new learner added to the ensemble corrects the shortcomings of previous models as it focuses on high weight instances.
+In other words, the weighing of the training data makes the new learner focus more on difficult cases.
+
+
+### Gradient Boosting
+Gradient boosting has the same objective as AdaBoost by correcting its predecessors, but rather than tweaking the instance
+weights, each new learner attempts to predict the residual error of the ensemble.
+
+**_Residual errors_**: The basic idea behind gradient boosting
+
+**Boosting:** a way to turn a set of weak learners into a strong learner through ensembling
+
+Random forests is an example of boosting used on decision trees. Adaboost is another approach we'll study, where learners 
+added to the ensemble are created to correct the errors of the ensemble so far.
+
+**Residual learning:** Another way to add learners to the ensemble that makes them correct the errors of the ensemble
+
+**Gradient boosting:** Through various clever tricks, one can add trees by fitting them to the gradients of loss functions
+computed on the earlier tree in the ensemble. Then produce the next tree in the ensemble by applying gradient descent.
 
 ## Name some features. What are the classes? binary trees
 Features in binary trees are usually the difference "categories" one example is level of glucose, BMI and age. In the 
@@ -599,15 +854,6 @@ The class is somewhat of a result. There are classes in each node, but the class
 False, False, False. This means the predicted class is cancer, but the gini of the class is just 0.48 which is very high.
 
 The probability for not cancer is 2/5 and cancer is 3/5 
-
-## What is a random forest?
-The negative side about binary trees is that it heavily overfits, if not regularly. They are also extremely sensitive 
-to small variations in the data. This is where random trees comes in. We ensemble multiple trees into one model, where 
-one of these is called random forests. Random forest also performs much better. Random forest is related to the concept
-of wisdom of the crowd where a crowd of non-expert that combine their predictions outperform individual experts. 
-
-So to summarize, an ensamble of binary threes which outperforms, is less sensitive and generalizes more than binary 
-threes. 
 
 ## How are predictions from a random forest produced?
 This depends on whether it's regression or classification,
